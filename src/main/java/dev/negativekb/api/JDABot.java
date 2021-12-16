@@ -26,10 +26,21 @@ public abstract class JDABot {
         builder.addEventListeners(new SlashCommandListener(commandMap));
     }
 
+    /**
+     * Register a {@link Command} as a global command
+     * @param command {@link Command} instance
+     * @apiNote This may take up to an hour for Discord to register it!
+     */
     public void registerGlobalCommand(@NotNull Command command) {
         commandMap.registerGlobalCommand(command.getName(), command);
     }
 
+    /**
+     * Register a {@link Command} as a server command
+     * @param serverID {@link Guild} ID
+     * @param command {@link Command} instance
+     * @apiNote This should register almost instantly!
+     */
     public void registerServerCommand(@NotNull String serverID, @NotNull Command command) {
         commandMap.registerServerCommand(serverID, command.getName(), command);
     }
