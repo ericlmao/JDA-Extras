@@ -25,7 +25,8 @@ public class SlashCommandListener extends ListenerAdapter {
         String id = guild.getId();
         Collection<Command> serverCommands = commandMap.getServerCommands(id);
         Optional<Command> firstServerCommand = serverCommands.stream()
-                .filter(command -> command.getName().equalsIgnoreCase(event.getName()))
+                .filter(command -> command.getName().equalsIgnoreCase(event.getName()) ||
+                        command.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(event.getName())))
                 .findFirst();
 
         if (firstServerCommand.isPresent()) {
@@ -34,7 +35,8 @@ public class SlashCommandListener extends ListenerAdapter {
         }
 
         Collection<Command> globalCommands = commandMap.getGlobalCommands();
-        globalCommands.stream().filter(command -> command.getName().equalsIgnoreCase(event.getName()))
+        globalCommands.stream().filter(command -> command.getName().equalsIgnoreCase(event.getName()) ||
+                        command.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(event.getName())))
                 .findFirst().ifPresent(command -> command.runCommand(event));
     }
 }

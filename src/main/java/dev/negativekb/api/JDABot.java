@@ -19,8 +19,8 @@ import java.util.Optional;
 public abstract class JDABot {
 
     @Getter
-    private final CommandMap commandMap;
-    public JDABot(@NotNull JDABuilder builder) {
+    private CommandMap commandMap;
+    public void initCommandMap(@NotNull JDABuilder builder) {
         commandMap = new CommandMapProvider();
 
         builder.addEventListeners(new SlashCommandListener(commandMap));
@@ -76,6 +76,7 @@ public abstract class JDABot {
                             commandData.addSubcommands(subcommandData);
                         });
                     }
+                    System.out.println("[Command Registry] Registered Global Command `" + commandData.getName() +"`");
                     commands.addCommands(commandData);
                 });
             }
@@ -97,6 +98,7 @@ public abstract class JDABot {
                     commandData.addSubcommands(subcommandData);
                 });
             }
+            System.out.println("[Command Registry] Registered Global Command `" + commandData.getName() +"`");
             commands.addCommands(commandData);
         });
 
@@ -129,6 +131,8 @@ public abstract class JDABot {
                                 commandData.addSubcommands(subcommandData);
                             });
                         }
+                        System.out.println("[Command Registry] Registered Server Command `" + commandData.getName()
+                                + "` to Guild `" + guild.getName() + "`");
                         guildCommands.addCommands(commandData);
                     });
                 }
@@ -150,6 +154,8 @@ public abstract class JDABot {
                         commandData.addSubcommands(subcommandData);
                     });
                 }
+                System.out.println("[Command Registry] Registered Server Command `" + commandData.getName()
+                        + "` to Guild `" + guild.getName() + "`");
                 guildCommands.addCommands(commandData);
             });
 
