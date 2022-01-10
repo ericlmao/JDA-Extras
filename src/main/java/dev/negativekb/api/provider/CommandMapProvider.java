@@ -40,7 +40,7 @@ public class CommandMapProvider implements CommandMap {
         Optional<Map.Entry<String, HashMap<String, Command>>> first = serverCommands.entrySet().stream()
                 .filter(commandEntry -> commandEntry.getKey().equalsIgnoreCase(serverID)).findFirst();
 
-        if (first.isEmpty())
+        if (!first.isPresent())
             return Collections.emptyList();
 
         Map.Entry<String, HashMap<String, Command>> commandEntries = first.get();
