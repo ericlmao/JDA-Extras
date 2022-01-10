@@ -1,8 +1,11 @@
 package dev.negativekb.api.commands;
 
 import dev.negativekb.api.commands.exception.InvalidCommandInfoException;
+import dev.negativekb.api.provider.CommandCooldownManagerProvider;
+import dev.negativekb.api.util.TimeUtil;
 import lombok.Getter;
 import lombok.Setter;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
@@ -21,11 +24,15 @@ public abstract class SubCommand {
     @Getter
     @Setter
     private Consumer<SubcommandData> data;
+    @Setter
+    private int cooldownInSeconds = 0;
+    private final CommandCooldownManager cooldownManager;
 
     public SubCommand() {
         if (!getClass().isAnnotationPresent(CommandInfo.class))
             throw new InvalidCommandInfoException();
 
+        cooldownManager = CommandCooldownManagerProvider.getInstance();
 
         CommandInfo info = getClass().getAnnotation(CommandInfo.class);
         this.name = info.name();
@@ -40,6 +47,23 @@ public abstract class SubCommand {
     }
 
     public void runCommand(SlashCommandEvent event) {
+        if (cooldownInSeconds != 0) {
+            User user = event.getUser();
+            String id = user.getId();
+
+            if (cooldownManager.checkCooldown(id, this)) {
+                // Reply with cooldown message
+                long cooldown = cooldownManager.getCooldown(id, this);
+                String format = TimeUtil.format(cooldown, System.currentTimeMillis());
+                event.reply("You cannot use this command for another " +
+                        "**" + format + "**!").setEphemeral(true).queue();
+                return;
+            }
+
+            long cooldownInMills = cooldownInSeconds * 1000L;
+            cooldownManager.addCooldown(id, this, cooldownInMills);
+        }
+
         onCommand(event);
     }
 

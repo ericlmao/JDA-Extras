@@ -1,8 +1,10 @@
 package dev.negativekb.api;
 
 import dev.negativekb.api.commands.Command;
+import dev.negativekb.api.commands.CommandCooldownManager;
 import dev.negativekb.api.commands.internal.CommandMap;
 import dev.negativekb.api.listener.SlashCommandListener;
+import dev.negativekb.api.provider.CommandCooldownManagerProvider;
 import dev.negativekb.api.provider.CommandMapProvider;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
@@ -20,7 +22,9 @@ public abstract class DiscordBot {
 
     @Getter
     private CommandMap commandMap;
+    private CommandCooldownManager commandCooldownManager;
     public void initCommandMap(@NotNull JDABuilder builder) {
+        commandCooldownManager = new CommandCooldownManagerProvider();
         commandMap = new CommandMapProvider();
 
         builder.addEventListeners(new SlashCommandListener(commandMap));
