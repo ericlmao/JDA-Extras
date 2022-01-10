@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Optional;
 
-public abstract class JDABot {
+public abstract class DiscordBot {
 
     @Getter
     private CommandMap commandMap;
