@@ -23,3 +23,23 @@ Repository
     <url>https://jitpack.io</url>
 </repository>
 ```
+Dependency
+```xml
+<dependency>
+    <groupId>com.github.NegativeKB</groupId>
+    <artifactId>JDA-Extras</artifactId>
+    <version>{VERSION}</version>
+    <scope>compile</scope>
+</dependency>
+```
+Build Configuration
+```xml
+<configuration>
+  <relocations>
+    <relocation>
+      <pattern>dev.negativekb.api</pattern>
+      <shadedPattern>{YOUR PACKAGE NAME}</shadedPattern>
+    </relocation>
+  </relocations>
+</configuration>
+```
