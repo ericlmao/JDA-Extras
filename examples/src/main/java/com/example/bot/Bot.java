@@ -1,6 +1,7 @@
 package com.example.bot;
 
 import com.example.bot.commands.SingleCommandExample;
+import com.example.bot.commands.subcomamnds.SubCommandCommandExample;
 import dev.negativekb.api.DiscordBot;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
@@ -17,7 +18,7 @@ public class Bot extends DiscordBot {
         // Guild Commands will update automatically. This is primarily used
         // for development work on Commands.
         registerServerCommand("DEV_SERVER_ID", new SingleCommandExample());
-        registerServerCommand("DEV_SERVER_ID", new SingleCommandExample());
+        registerServerCommand("DEV_SERVER_ID", new SubCommandCommandExample());
 
         // Global Commands
         // Global Commands will take up to an hour to register
