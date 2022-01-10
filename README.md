@@ -1,5 +1,5 @@
 # JDA-Extras
-Extra utilities for JDA
+This library was designed to provide a more abstract experience to JDA's SlashCommand implementation. Please read the feature list for all features in this project, and please view the examples module to see how to utilize this project for your own personal use!
 
 # Feature List
 ## Commands
