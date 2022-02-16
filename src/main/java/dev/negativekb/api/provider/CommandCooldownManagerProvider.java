@@ -1,8 +1,8 @@
 package dev.negativekb.api.provider;
 
-import dev.negativekb.api.commands.Command;
+import dev.negativekb.api.commands.SlashCommand;
 import dev.negativekb.api.commands.CommandCooldownManager;
-import dev.negativekb.api.commands.SubCommand;
+import dev.negativekb.api.commands.SlashSubCommand;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -11,8 +11,8 @@ import java.util.*;
 
 public class CommandCooldownManagerProvider implements CommandCooldownManager {
 
-    private final HashMap<String, HashMap<Command, Long>> commandCooldowns = new HashMap<>();
-    private final HashMap<String, HashMap<SubCommand, Long>> subCommandCooldowns = new HashMap<>();
+    private final HashMap<String, HashMap<SlashCommand, Long>> commandCooldowns = new HashMap<>();
+    private final HashMap<String, HashMap<SlashSubCommand, Long>> subCommandCooldowns = new HashMap<>();
 
     @Getter
     private static CommandCooldownManagerProvider instance;
@@ -24,8 +24,8 @@ public class CommandCooldownManagerProvider implements CommandCooldownManager {
     }
 
     @Override
-    public void addCooldown(@NotNull String id, @NotNull Command command, long duration) {
-        HashMap<Command, Long> activeCooldowns = commandCooldowns.get(id);
+    public void addCooldown(@NotNull String id, @NotNull SlashCommand command, long duration) {
+        HashMap<SlashCommand, Long> activeCooldowns = commandCooldowns.get(id);
         if (activeCooldowns == null)
             activeCooldowns = new HashMap<>();
 
@@ -38,8 +38,8 @@ public class CommandCooldownManagerProvider implements CommandCooldownManager {
     }
 
     @Override
-    public void addCooldown(@NotNull String id, @NotNull SubCommand subCommand, long duration) {
-        HashMap<SubCommand, Long> activeCooldowns = subCommandCooldowns.get(id);
+    public void addCooldown(@NotNull String id, @NotNull SlashSubCommand subCommand, long duration) {
+        HashMap<SlashSubCommand, Long> activeCooldowns = subCommandCooldowns.get(id);
         if (activeCooldowns == null)
             activeCooldowns = new HashMap<>();
 
@@ -52,14 +52,14 @@ public class CommandCooldownManagerProvider implements CommandCooldownManager {
     }
 
     @Override
-    public boolean checkCooldown(@NotNull String id, @NotNull Command command) {
-        Optional<Map.Entry<String, HashMap<Command, Long>>> first = commandCooldowns.entrySet().stream()
+    public boolean checkCooldown(@NotNull String id, @NotNull SlashCommand command) {
+        Optional<Map.Entry<String, HashMap<SlashCommand, Long>>> first = commandCooldowns.entrySet().stream()
                 .filter(cooldownEntry -> cooldownEntry.getKey().equalsIgnoreCase(id)).findFirst();
 
         if (!first.isPresent())
             return false;
 
-        Map.Entry<String, HashMap<Command, Long>> commandEntries = first.get();
+        Map.Entry<String, HashMap<SlashCommand, Long>> commandEntries = first.get();
         return commandEntries.getValue()
                 .entrySet()
                 .stream()
@@ -68,14 +68,14 @@ public class CommandCooldownManagerProvider implements CommandCooldownManager {
     }
 
     @Override
-    public boolean checkCooldown(@NotNull String id, @NotNull SubCommand subCommand) {
-        Optional<Map.Entry<String, HashMap<SubCommand, Long>>> first = subCommandCooldowns.entrySet()
+    public boolean checkCooldown(@NotNull String id, @NotNull SlashSubCommand subCommand) {
+        Optional<Map.Entry<String, HashMap<SlashSubCommand, Long>>> first = subCommandCooldowns.entrySet()
                 .stream().filter(cooldownEntry -> cooldownEntry.getKey().equalsIgnoreCase(id)).findFirst();
 
         if (!first.isPresent())
             return false;
 
-        Map.Entry<String, HashMap<SubCommand, Long>> commandEntries = first.get();
+        Map.Entry<String, HashMap<SlashSubCommand, Long>> commandEntries = first.get();
         return commandEntries.getValue()
                 .entrySet()
                 .stream()
@@ -83,20 +83,20 @@ public class CommandCooldownManagerProvider implements CommandCooldownManager {
     }
 
     @Override
-    public long getCooldown(@NotNull String id, @NotNull Command command) {
+    public long getCooldown(@NotNull String id, @NotNull SlashCommand command) {
         if (!checkCooldown(id, command))
             return 0;
 
-        HashMap<Command, Long> active = commandCooldowns.get(id);
+        HashMap<SlashCommand, Long> active = commandCooldowns.get(id);
         return active.getOrDefault(command, 0L);
     }
 
     @Override
-    public long getCooldown(@NotNull String id, @NotNull SubCommand command) {
+    public long getCooldown(@NotNull String id, @NotNull SlashSubCommand command) {
         if (!checkCooldown(id, command))
             return 0;
 
-        HashMap<SubCommand, Long> active = subCommandCooldowns.get(id);
+        HashMap<SlashSubCommand, Long> active = subCommandCooldowns.get(id);
         return active.getOrDefault(command, 0L);
     }
 
@@ -114,11 +114,11 @@ public class CommandCooldownManagerProvider implements CommandCooldownManager {
         @SneakyThrows
         @Override
         public void run() {
-            HashMap<String, ArrayList<Command>> commandsToRemove = new HashMap<>();
-            HashMap<String, ArrayList<SubCommand>> subCommandsToRemove = new HashMap<>();
+            HashMap<String, ArrayList<SlashCommand>> commandsToRemove = new HashMap<>();
+            HashMap<String, ArrayList<SlashSubCommand>> subCommandsToRemove = new HashMap<>();
 
             commandCooldowns.forEach((user, cooldowns) -> {
-                ArrayList<Command> removable = new ArrayList<>();
+                ArrayList<SlashCommand> removable = new ArrayList<>();
                 cooldowns.entrySet()
                         .stream()
                         .filter(commandEntry -> System.currentTimeMillis() >= commandEntry.getValue())
@@ -128,7 +128,7 @@ public class CommandCooldownManagerProvider implements CommandCooldownManager {
             });
 
             subCommandCooldowns.forEach((user, cooldowns) -> {
-                ArrayList<SubCommand> removable = new ArrayList<>();
+                ArrayList<SlashSubCommand> removable = new ArrayList<>();
                 cooldowns.entrySet()
                         .stream()
                         .filter(commandEntry -> System.currentTimeMillis() >= commandEntry.getValue())
@@ -138,7 +138,7 @@ public class CommandCooldownManagerProvider implements CommandCooldownManager {
             });
 
             commandsToRemove.forEach((user, commands) -> {
-                HashMap<Command, Long> active = commandCooldowns.get(user);
+                HashMap<SlashCommand, Long> active = commandCooldowns.get(user);
                 commands.forEach(active::remove);
 
                 if (active.isEmpty())
@@ -148,7 +148,7 @@ public class CommandCooldownManagerProvider implements CommandCooldownManager {
             });
 
             subCommandsToRemove.forEach((user, subCommands) -> {
-                HashMap<SubCommand, Long> active = subCommandCooldowns.get(user);
+                HashMap<SlashSubCommand, Long> active = subCommandCooldowns.get(user);
                 subCommands.forEach(active::remove);
 
                 if (active.isEmpty())

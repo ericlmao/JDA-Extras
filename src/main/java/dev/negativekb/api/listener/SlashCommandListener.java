@@ -1,6 +1,6 @@
 package dev.negativekb.api.listener;
 
-import dev.negativekb.api.commands.Command;
+import dev.negativekb.api.commands.SlashCommand;
 import dev.negativekb.api.commands.internal.CommandMap;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
@@ -23,8 +23,8 @@ public class SlashCommandListener extends ListenerAdapter {
             return;
 
         String id = guild.getId();
-        Collection<Command> serverCommands = commandMap.getServerCommands(id);
-        Optional<Command> firstServerCommand = serverCommands.stream()
+        Collection<SlashCommand> serverCommands = commandMap.getServerCommands(id);
+        Optional<SlashCommand> firstServerCommand = serverCommands.stream()
                 .filter(command -> command.getName().equalsIgnoreCase(event.getName()) ||
                         command.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(event.getName())))
                 .findFirst();
@@ -34,7 +34,7 @@ public class SlashCommandListener extends ListenerAdapter {
             return;
         }
 
-        Collection<Command> globalCommands = commandMap.getGlobalCommands();
+        Collection<SlashCommand> globalCommands = commandMap.getGlobalCommands();
         globalCommands.stream().filter(command -> command.getName().equalsIgnoreCase(event.getName()) ||
                         command.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(event.getName())))
                 .findFirst().ifPresent(command -> command.runCommand(event));

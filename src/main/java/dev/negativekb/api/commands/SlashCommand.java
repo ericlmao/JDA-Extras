@@ -7,15 +7,16 @@ import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @Getter
-public abstract class SubCommand {
+public abstract class SlashCommand {
 
     private final String name;
     private final String description;
@@ -23,20 +24,23 @@ public abstract class SubCommand {
     private List<String> aliases = new ArrayList<>();
     @Getter
     @Setter
-    private Consumer<SubcommandData> data;
+    private Consumer<CommandData> data;
+    @Getter
+    private final ArrayList<SlashSubCommand> subCommands = new ArrayList<>();
     @Setter
     private int cooldownInSeconds = 0;
     private final CommandCooldownManager cooldownManager;
 
-    public SubCommand() {
-        if (!getClass().isAnnotationPresent(CommandInfo.class))
+    public SlashCommand() {
+        if (!getClass().isAnnotationPresent(SlashCommandInfo.class))
             throw new InvalidCommandInfoException();
 
         cooldownManager = CommandCooldownManagerProvider.getInstance();
 
-        CommandInfo info = getClass().getAnnotation(CommandInfo.class);
+        SlashCommandInfo info = getClass().getAnnotation(SlashCommandInfo.class);
         this.name = info.name();
         this.description = info.description();
+
         List<String> a = new ArrayList<>(Arrays.asList(info.aliases()));
         // There will always be an empty index even if no arguments are
         // set. So the way you identify if there are actual arguments in the command
@@ -47,6 +51,17 @@ public abstract class SubCommand {
     }
 
     public void runCommand(SlashCommandEvent event) {
+        boolean hasSubCommand = Optional.ofNullable(event.getSubcommandName()).isPresent();
+        if (hasSubCommand && !subCommands.isEmpty()) {
+            String subcommandName = event.getSubcommandName();
+            Optional<SlashSubCommand> first = subCommands.stream()
+                    .filter(subCommand -> subCommand.getName().equalsIgnoreCase(subcommandName))
+                    .findFirst();
+
+            first.ifPresent(subCommand -> subCommand.runCommand(event));
+            return;
+        }
+
         if (cooldownInSeconds != 0) {
             User user = event.getUser();
             String id = user.getId();
@@ -68,4 +83,8 @@ public abstract class SubCommand {
     }
 
     public abstract void onCommand(SlashCommandEvent event);
+
+    public void addSubCommands(SlashSubCommand... subCommands) {
+        this.subCommands.addAll(Arrays.asList(subCommands));
+    }
 }

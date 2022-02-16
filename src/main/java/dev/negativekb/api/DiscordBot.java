@@ -1,6 +1,6 @@
 package dev.negativekb.api;
 
-import dev.negativekb.api.commands.Command;
+import dev.negativekb.api.commands.SlashCommand;
 import dev.negativekb.api.commands.CommandCooldownManager;
 import dev.negativekb.api.commands.internal.CommandMap;
 import dev.negativekb.api.listener.SlashCommandListener;
@@ -31,21 +31,21 @@ public abstract class DiscordBot {
     }
 
     /**
-     * Register a {@link Command} as a global command
-     * @param command {@link Command} instance
+     * Register a {@link SlashCommand} as a global command
+     * @param command {@link SlashCommand} instance
      * @apiNote This may take up to an hour for Discord to register it!
      */
-    public void registerGlobalCommand(@NotNull Command command) {
+    public void registerGlobalCommand(@NotNull SlashCommand command) {
         commandMap.registerGlobalCommand(command.getName(), command);
     }
 
     /**
-     * Register a {@link Command} as a server command
+     * Register a {@link SlashCommand} as a server command
      * @param serverID {@link Guild} ID
-     * @param command {@link Command} instance
+     * @param command {@link SlashCommand} instance
      * @apiNote This should register almost instantly!
      */
-    public void registerServerCommand(@NotNull String serverID, @NotNull Command command) {
+    public void registerServerCommand(@NotNull String serverID, @NotNull SlashCommand command) {
         commandMap.registerServerCommand(serverID, command.getName(), command);
     }
 
@@ -57,7 +57,7 @@ public abstract class DiscordBot {
     @SuppressWarnings("all")
     public void initializeCommands(@NotNull JDA jda) {
         // Global Commands
-        Collection<Command> globalCommands = commandMap.getGlobalCommands();
+        Collection<SlashCommand> globalCommands = commandMap.getGlobalCommands();
         CommandListUpdateAction commands = jda.updateCommands();
 
         globalCommands.forEach(command -> {
@@ -114,7 +114,7 @@ public abstract class DiscordBot {
             assert guild != null;
             CommandListUpdateAction guildCommands = guild.updateCommands();
 
-            Collection<Command> serverCommands = serverEntry.getValue();
+            Collection<SlashCommand> serverCommands = serverEntry.getValue();
             serverCommands.forEach(command -> {
                 if (!command.getAliases().isEmpty()) {
                     command.getAliases().forEach(name -> {
